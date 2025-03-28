@@ -38,6 +38,22 @@ router.post("/create", authMiddleware, async (req, res) => {
     }
 });
 
+// ✅ Fetch a group name by ID
+router.get("/id/:groupId", async (req, res) => {
+    try {
+        const group = await Group.findById(req.params.groupId);
+
+        if (!group) {
+            return res.status(404).json({ error: "Group not found" });
+        }
+
+        res.json({ name: group.name });
+    } catch (error) {
+        console.error("Error fetching group by ID:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 
 
 // ✅ Fetch all public groups
