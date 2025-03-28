@@ -1,0 +1,168 @@
+/* ✅ Container for post creation page */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 40px;
+  font-family: "Inter", "Roboto", sans-serif;
+  color: white;
+}
+
+/* ✅ Post creation box */
+.createPostBox {
+  background: #1B1B1D;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.3);
+  width: 450px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 1px solid #26252a;
+  gap: 10px;
+  padding-top: 0px;
+  max-width: 400px;
+  min-width: 400px;
+}
+
+/* ✅ Form layout */
+.postForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  width: 100%;
+ 
+}
+
+/* ✅ Input fields */
+.input,
+.textarea,
+.fileInput {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #444;
+  border-radius: 5px;
+  font-size: 16px;
+  background: #2a2a2d;
+  color: white;
+  text-align: left;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: #aaa;
+}
+
+.textarea {
+  height: 100px;
+  width: 90%;
+  resize: none;
+}
+
+/* ✅ File input styling */
+.fileInput {
+  padding: 5px;
+  cursor: pointer;
+  width: 50%;
+}
+
+/* ✅ Image preview container */
+.filePreviewContainer {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* ✅ Image preview */
+.filePreview {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.4);
+  object-fit: contain;
+}
+
+.thumbnailPreviewContainer {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border: 2px solid #444;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.thumbnail:hover {
+  border-color: #3C4C24;
+}
+
+
+/* ✅ Post button */
+.postButton {
+  background-color: #1E90FF;
+  color: white;
+  padding: 10px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  align-self: center;
+  width: 100px;
+  font-weight: bolder;
+}
+
+.postButton:hover {
+  background-color: #187bcd;
+}
+
+/* ✅ Narrow styling for inputs, dropdowns, buttons */
+.narrowInput,
+.narrowDropdown {
+  max-width: 300px;
+  width: 100%;
+  text-align: left;
+  align-self: flex-start;
+}
+
+/* ✅ Error and success messages */
+.error {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+  text-align: center;
+  font-weight: bold;
+  width: 100%;
+}
+
+.success {
+  color: #4caf50;
+  margin-top: 10px;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+}
+
+/* ✅ My Posts section below */
+.postsContainer {
+  margin-top: 30px;
+  width: 100%;
+  max-width: 400px;
+  color: white;
+}
+
+.noPosts {
+  color: #aaa;
+  font-size: 14px;
+  text-align: center;
+}
+

@@ -1,0 +1,171 @@
+.container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #1B1B1D;
+  border: 1px solid #26252a;
+  border-radius: 10px;
+  font-family: Inter, Roboto, sans-serif;
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.groupTitle {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.groupDescription {
+  font-size: 1.1rem;
+  color: #ccc;
+  margin-bottom: 10px;
+}
+
+.groupPrivacy {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+.memberInfo {
+  background-color: #2a2a2d;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.memberInfo p {
+  margin: 5px 0;
+  color: #ddd;
+}
+
+.joinLeaveButton {
+  padding: 10px 20px;
+  margin-bottom: 25px;
+  background-color: #1E90FF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.joinLeaveButton:hover {
+  background-color: #187bcd;
+}
+
+.postSection {
+  margin-bottom: 30px;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 1rem;
+  background: #2a2a2d;
+  border: 1px solid #444;
+  border-radius: 6px;
+  resize: vertical;
+  color: white;
+}
+
+.postButton {
+  background-color: #1E90FF;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.postButton:hover {
+  background-color: #187bcd;
+}
+
+.postList {
+  list-style-type: none;
+  padding: 0;
+}
+
+.postItem {
+  margin-bottom: 15px;
+  padding: 10px 15px;
+  background-color: #2a2a2d;
+  border-left: 4px solid #1E90FF;
+  border-radius: 5px;
+  color: white;
+}
+
+.postItem a {
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}
+
+.postItem a:hover {
+  text-decoration: underline;
+  color: #1E90FF;
+}
+
+.adminControls {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #444;
+}
+
+.adminControls h3 {
+  margin-bottom: 15px;
+  color: white;
+}
+
+.adminControls select {
+  padding: 6px 10px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  background: #1B1B1D;
+  color: white;
+  border: 1px solid #666;
+}
+
+.adminControls button {
+  background-color: #1E90FF;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  margin-left: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.adminControls button:hover {
+  background-color: #187bcd;
+}
+
+.error {
+  color: red;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.deleteButton {
+  background-color: #ff4444;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.deleteButton:hover {
+  background-color: #cc0000;
+}

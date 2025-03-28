@@ -1,0 +1,88 @@
+.createGroupContainer {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 25px;
+  background-color: #1B1B1D;
+  border-radius: 10px;
+  box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid #26252a;
+  font-family: "Inter", "Roboto", sans-serif;
+  color: white;
+}
+
+/* ✅ Heading */
+.createGroupContainer h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: white;
+}
+
+/* ✅ Form layout */
+.createGroupContainer form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ✅ Label styling */
+.createGroupContainer label {
+  font-weight: bold;
+  font-size: 14px;
+  color: #ccc;
+}
+
+/* ✅ Inputs and textarea */
+.createGroupContainer input,
+.createGroupContainer textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #2a2a2d;
+  color: white;
+}
+
+.createGroupContainer input::placeholder,
+.createGroupContainer textarea::placeholder {
+  color: #999;
+}
+
+.createGroupContainer textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ✅ Submit button */
+.createGroupContainer button {
+  background-color: #1E90FF;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 16px;
+  align-self: flex-start;
+  transition: background 0.3s ease;
+  font-weight: bolder;
+}
+
+.createGroupContainer button:hover {
+  background-color: #187bcd;
+}
+
+/* ✅ Messages */
+.createGroupContainer .error {
+  color: red;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.createGroupContainer .success {
+  color: #4caf50;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 10px;
+}

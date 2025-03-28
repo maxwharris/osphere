@@ -1,0 +1,88 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000; /* Ensure it's above other elements */
+  background-color: #1B1B1D; /* your dark gray */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  color: white;
+  border: none;
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
+.scrolled {
+  background-color: white;
+  color: #1B1B1D;
+  border-bottom: 1px solid #161619;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.scrolled .links a,
+.scrolled .logo {
+  color: #161619;
+  transition: color 0.3s ease;
+}
+
+.logo {
+  font-family: 'Inter', sans-serif;
+  color: white;
+  margin: 0;
+  padding: 0;
+  font-size: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.links a {
+  margin-left: 25px;
+  color: white;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.links a:hover {
+  color: #1E90FF;
+}
+
+.logoutButton {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 25px;
+  transition: color 0.3s ease;
+}
+
+.logoutButton:hover {
+  color: #1E90FF;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  display: inline-block;
+  animation: spin 2s linear infinite;
+}
+.logo {
+  display: inline-block;
+  transform-origin: center center;
+  vertical-align: middle;
+  line-height: 1; /* or adjust if needed */
+  font: white;
+}
