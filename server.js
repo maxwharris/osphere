@@ -15,6 +15,7 @@ const commentRoutes = require("./server/routes/comments");
 const messageRoutes = require("./server/routes/messages");
 const groupRoutes = require("./server/routes/groups");
 const searchRoutes = require("./server/routes/search");
+const notifRoutes = require("./server/routes/notifications");
 
 const app = express();
 const server = http.createServer(app);
@@ -30,7 +31,9 @@ const allowedOrigins = [
   "https://osphere.io",
   "https://www.osphere.io",
   "https://api.osphere.io",
-  "https://*.osphere.io"
+  "https://*.osphere.io",
+  "http://localhost:3000",
+  "http://localhost:5000"
 ];
 
 app.use(cors({
@@ -79,6 +82,8 @@ app.use("/api/comments", commentRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/groups", groupRoutes);
+app.use("/api/notifications", notifRoutes);
+
 
 // ✅ WebSocket setup
 const io = socketIo(server, {
