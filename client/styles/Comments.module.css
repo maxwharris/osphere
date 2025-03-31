@@ -1,198 +1,209 @@
 .commentsSection {
-    margin-top: 20px;
-    padding: 15px;
-    padding-top: 15px;
-    background: #1B1B1D;
-    border-radius: 8px;
-    border: 1px solid #26252a;
-    color: white;
-  }
-  
-  .commentsSection h3 {
-    color: white;
-    font-size: 18px;
-    margin-bottom: 10px;
-  }
-  
-  /* ✅ Comment Input Form */
-  .commentForm {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-  
-  .commentForm input {
-    flex-grow: 1;
-    padding: 8px;
-    border: 1px solid #444;
-    background: #2a2a2d;
-    border-radius: 5px;
-    color: white;
-  }
-  
-  .commentForm input::placeholder {
-    color: #aaa;
-  }
-  
-  .commentForm button {
-    background-color: #1E90FF;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    
+  margin-top: 20px;
+  padding: 15px;
+  padding-top: 15px;
+  background: #1B1B1D;
+  border-radius: 8px;
+  border: 1px solid #26252a;
+  color: white;
+}
+
+.commentsSection h3 {
+  color: white;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+/* ✅ Comment Input Form */
+.commentForm {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.commentForm input {
+  flex-grow: 1;
+  padding: 8px;
+  border: 1px solid #444;
+  background: #2a2a2d;
+  border-radius: 5px;
+  color: white;
+}
+
+.commentForm input::placeholder {
+  color: #aaa;
+}
+
+.commentForm button {
+  background-color: #1E90FF;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
   font-weight: bolder;
-  }
-  
-  .commentForm button:hover {
-    background-color: #187bcd;
-  }
-  
-  .comment {
-    position: relative;
-    background: #2a2a2d;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-left: 3px solid #1E90FF;
-  }
-  
-  .commentHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .commentActions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 5px;
-  }
-  
-  .commentAuthor {
-    font-size: 14px;
-    color: white;
-    font-weight: bold;
-    text-decoration: none;
-  }
-  
-  .commentAuthor:hover {
-    text-decoration: underline;
-    color: #1E90FF;
-  }
-  
-  .comment p {
-    font-size: 14px;
-    color: #ddd;
-    margin: 5px 0;
-    text-align: left;
-  }
-  
-  /* ✅ Timestamp */
-  .comment small {
-    color: #888;
-    font-size: 12px;
-  }
-  
-  /* ✅ Voting Section */
-  .voteContainer {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .voteButton {
-    border: none;
-    background: none;
-    color: #aaa;
-    font-size: 16px;
-    padding: 5px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  
-  .voteButton:hover {
-    background: #3a3a3d;
-    color: white;
-  }
-  
-  /* ✅ Selected vote buttons change color */
-  .voteButton.liked,
-  .reply .voteButton.liked {
-    background: none !important;
-    color: #1E90FF;
-  }
-  
-  .voteButton.disliked,
-  .reply .voteButton.disliked {
-    background: none !important;
-    color: #f44336;
-  }
-  
-  /* ✅ Style Delete and Reply Buttons */
-  .replyButton,
-  .deleteCommentButton {
-    font-family: "Roboto", sans-serif;
-    font-size: 14px;
-    color: #bbb;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: color 0.2s;
-  }
-  
-  .replyButton:hover,
-  .deleteCommentButton:hover {
-    color: #f44336;
-  }
-  
-  /* ✅ Replies & Indentation */
-  .replyContainer {
-    margin-left: 20px;
-    border-left: 2px solid #444;
-    padding-left: 10px;
-  }
-  
-  .reply {
-    margin-left: 20px;
-    border-left: 2px solid #444;
-    padding-left: 10px;
-  }
-  
-  /* ✅ Reply Form */
-  .replyForm {
-    display: flex;
-    gap: 10px;
-    margin-top: 5px;
-    margin-bottom: 10px;
-  }
-  
-  .replyForm input {
-    flex-grow: 1;
-    padding: 8px;
-    border: 1px solid #444;
-    background: #2a2a2d;
-    border-radius: 5px;
-    color: white;
-  }
-  
-  .replyForm input::placeholder {
-    color: #aaa;
-  }
-  
-  .replyForm button {
-    background-color: #1E90FF;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .replyForm button:hover {
-    background-color: #187bcd;
-  }
-  
+}
+
+.commentForm button:hover {
+  background-color: #187bcd;
+}
+
+.comment {
+  position: relative;
+  background: #2a2a2d;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-left: 3px solid #1E90FF;
+}
+
+.commentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.commentActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.commentAuthor {
+  font-size: 14px;
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.commentAuthor:hover {
+  text-decoration: underline;
+  color: #1E90FF;
+}
+
+.comment p {
+  font-size: 14px;
+  color: #ddd;
+  margin: 5px 0;
+  text-align: left;
+}
+
+/* ✅ Timestamp */
+.comment small {
+  color: #888;
+  font-size: 12px;
+}
+
+/* ✅ Voting Section */
+.voteContainer {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.voteButton {
+  border: none;
+  background: none;
+  color: #aaa;
+  font-size: 16px;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.voteButton:hover {
+  background: #3a3a3d;
+  color: white;
+}
+
+/* ✅ Selected vote buttons change color */
+.voteButton.liked,
+.reply .voteButton.liked {
+  background: none !important;
+  color: #1E90FF;
+}
+
+.voteButton.disliked,
+.reply .voteButton.disliked {
+  background: none !important;
+  color: #f44336;
+}
+
+/* ✅ Style Delete and Reply Buttons */
+.replyButton,
+.deleteCommentButton {
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  color: #bbb;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.replyButton:hover,
+.deleteCommentButton:hover {
+  color: #f44336;
+}
+
+/* ✅ Replies & Indentation */
+.replyContainer {
+  margin-left: 20px;
+  border-left: 2px solid #444;
+  padding-left: 10px;
+}
+
+.reply {
+  margin-left: 20px;
+  border-left: 2px solid #444;
+  padding-left: 10px;
+}
+
+/* ✅ Reply Form */
+.replyForm {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.replyForm input {
+  flex-grow: 1;
+  padding: 8px;
+  border: 1px solid #444;
+  background: #2a2a2d;
+  border-radius: 5px;
+  color: white;
+}
+
+.replyForm input::placeholder {
+  color: #aaa;
+}
+
+.replyForm button {
+  background-color: #1E90FF;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.replyForm button:hover {
+  background-color: #187bcd;
+}
+
+/* ✅ Mentioned User Tag Style */
+.tag {
+  color: #1E90FF;
+  font-weight: bold;
+  text-decoration: none;
+  margin: 0 2px;
+  cursor: pointer;
+}
+
+.tag:hover {
+  text-decoration: underline;
+}

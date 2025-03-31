@@ -1,32 +1,122 @@
 const express = require("express");
 const Comment = require("../models/Comment");
 const Post = require("../models/Post");
+const Notification = require("../models/Notifications");
+const User = require("../models/User");
 const authMiddleware = require("../middleware/auth");
+
+const getSocketContext = () => {
+  const server = require("../../server");
+  return {
+    io: server.io,
+    connectedUsers: server.connectedUsers,
+  };
+};
 
 const router = express.Router();
 
-// ✅ Create a comment on a post
+// Add a comment to a post
 router.post("/:postId", authMiddleware, async (req, res) => {
   try {
-    const { text, parentId } = req.body;
+    const { content, parentId } = req.body;
+    if (!content) return res.status(400).json({ error: "Content is required." });
+
     const post = await Post.findById(req.params.postId);
-    if (!post) return res.status(404).json({ error: "Post not found" });
+    if (!post) return res.status(404).json({ error: "Post not found." });
 
     const newComment = new Comment({
-      post: post._id,
+      text: content,
       user: req.user.userId,
-      text,
-      parent: parentId || null, // Null if top-level comment
+      post: req.params.postId,
+      parent: parentId || null,
     });
-
     await newComment.save();
-    res.status(201).json(newComment);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+
+    const populatedComment = await newComment.populate("user", "username");
+
+    try {
+      const postAuthorId = post.user._id?.toString?.() || post.user.toString();
+      if (postAuthorId !== req.user.userId && !parentId) {
+        const commenter = await User.findById(req.user.userId);
+        const link = `https://osphere.io/p?id=${post._id}`;
+        const message = `${commenter.username} replied to your post`;
+
+        let userNotifications = await Notification.findOne({ user: post.user });
+        const newNotification = {
+          message,
+          type: "reply",
+          link,
+          fromUser: commenter._id,
+          timestamp: new Date(),
+          opened: false,
+        };
+
+        if (!userNotifications) {
+          userNotifications = new Notification({
+            user: post.user,
+            notifications: [newNotification],
+          });
+        } else {
+          userNotifications.notifications.unshift(newNotification);
+        }
+
+        await userNotifications.save();
+
+        const { io, connectedUsers } = getSocketContext();
+        const recipientSocket = connectedUsers?.get?.(post.user.toString());
+        if (recipientSocket && io) {
+          io.to(recipientSocket).emit("new_notification", newNotification);
+        }
+      }
+    } catch (err) {}
+
+    try {
+      const tagMatches = content.match(/\.[a-zA-Z0-9_]+/g);
+      const mentionedUsernames = [...new Set(tagMatches || [])];
+
+      const taggedUsers = await User.find({ username: { $in: mentionedUsernames } });
+
+      for (const taggedUser of taggedUsers) {
+        if (taggedUser._id.toString() === req.user.userId) continue;
+
+        const link = `https://osphere.io/p?id=${post._id}`;
+        const message = `${populatedComment.user.username} mentioned you in a comment`;
+
+        let userNotifications = await Notification.findOne({ user: taggedUser._id });
+        const newNotification = {
+          message,
+          type: "mention",
+          link,
+          fromUser: populatedComment.user._id,
+          timestamp: new Date(),
+          opened: false,
+        };
+
+        if (!userNotifications) {
+          userNotifications = new Notification({
+            user: taggedUser._id,
+            notifications: [newNotification],
+          });
+        } else {
+          userNotifications.notifications.unshift(newNotification);
+        }
+
+        await userNotifications.save();
+
+        const { io, connectedUsers } = getSocketContext();
+        const recipientSocket = connectedUsers?.get?.(taggedUser._id.toString());
+        if (recipientSocket && io) {
+          io.to(recipientSocket).emit("new_notification", newNotification);
+        }
+      }
+    } catch (err) {}
+
+    res.status(201).json(populatedComment);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ Get comments for a post
 router.get("/:postId", async (req, res) => {
   try {
     const userId = req.user ? req.user.userId : null;
@@ -50,20 +140,17 @@ router.get("/:postId", async (req, res) => {
     }));
 
     res.json(updatedComments);
-
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// ✅ Like or Dislike a Comment
 router.post("/:commentId/vote", authMiddleware, async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.commentId);
     if (!comment) return res.status(404).json({ error: "Comment not found" });
 
-    const { voteType } = req.body; // "like" or "dislike"
+    const { voteType } = req.body;
     const userId = req.user.userId;
 
     if (voteType === "like") {
@@ -95,7 +182,6 @@ router.post("/:commentId/vote", authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ Delete a comment (Comment author OR Post author)
 router.delete("/:commentId", authMiddleware, async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.commentId);
@@ -104,7 +190,6 @@ router.delete("/:commentId", authMiddleware, async (req, res) => {
     const post = await Post.findById(comment.post);
     if (!post) return res.status(404).json({ error: "Post not found" });
 
-    // ✅ Allow deletion if user is either the comment author OR the post author
     if (comment.user.toString() !== req.user.userId && post.user.toString() !== req.user.userId) {
       return res.status(403).json({ error: "Unauthorized" });
     }

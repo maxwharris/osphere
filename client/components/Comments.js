@@ -18,11 +18,11 @@ const Comments = ({ postId, postAuthorId }) => {
       const res = await api.get(`/api/comments/${postId}`);
       const userData = await api.get("/api/auth/me");
       const loggedInUser = userData.data;
-  
+
       const updatedComments = res.data.map(comment => {
         const userLiked = loggedInUser ? comment.likes.includes(loggedInUser.id) : false;
         const userDisliked = loggedInUser ? comment.dislikes.includes(loggedInUser.id) : false;
-      
+
         return {
           ...comment,
           userLiked,
@@ -34,7 +34,7 @@ const Comments = ({ postId, postAuthorId }) => {
           }))
         };
       });
-      
+
       // SORT BY VOTES, THEN DATE
       updatedComments.sort((a, b) => {
         const aScore = a.likes.length - a.dislikes.length;
@@ -50,7 +50,6 @@ const Comments = ({ postId, postAuthorId }) => {
       console.error("Error fetching comments:", err.response?.data || err.message);
     }
   };
-  
 
   const handleCommentSubmit = async (e, parentId = null) => {
     e.preventDefault();
@@ -59,15 +58,14 @@ const Comments = ({ postId, postAuthorId }) => {
 
     if (!authUser) return alert("You must be logged in to comment.");
 
-    const text = parentId ? replyText : newComment;
+    const content = parentId ? replyText : newComment;
 
     try {
-      await api.post(`/api/comments/${postId}`, { text, parentId });
-
+      await api.post(`/api/comments/${postId}`, { content, parentId });
+      await fetchComments();
       setNewComment("");
       setReplyText("");
       setReplyingTo(null);
-      fetchComments();
     } catch (err) {
       console.error("Error posting comment:", err.response?.data || err.message);
     }
@@ -80,7 +78,6 @@ const Comments = ({ postId, postAuthorId }) => {
 
     try {
       await api.delete(`/api/comments/${commentId}`);
-
       setComments(comments.filter(comment => comment._id !== commentId));
     } catch (err) {
       console.error("Error deleting comment:", err.response?.data || err.message);
@@ -102,7 +99,7 @@ const Comments = ({ postId, postAuthorId }) => {
           dislikes: comment._id === commentId ? Array(res.data.dislikes).fill("") : comment.dislikes,
           userLiked: comment._id === commentId ? res.data.userLiked : comment.userLiked,
           userDisliked: comment._id === commentId ? res.data.userDisliked : comment.userDisliked,
-          replies: comment.replies.map(reply => 
+          replies: comment.replies.map(reply =>
             reply._id === commentId
               ? {
                   ...reply,
@@ -115,13 +112,25 @@ const Comments = ({ postId, postAuthorId }) => {
           )
         }))
       );
-      
+
     } catch (err) {
       console.error("Error voting:", err.response?.data || err.message);
     }
   };
 
-
+  const renderTextWithTags = (text) => {
+    return text.split(/(\.[a-zA-Z0-9_]+)/g).map((part, i) => {
+      if (part.startsWith(".")) {
+        const username = part.slice(1);
+        return (
+          <Link key={i} href={`/profile?username=.${username}`}>
+            <span className={styles.tag}>.{username}</span>
+          </Link>
+        );
+      }
+      return part;
+    });
+  };
 
   return (
     <div className={styles.commentsSection}>
@@ -149,7 +158,7 @@ const Comments = ({ postId, postAuthorId }) => {
               <small>{new Date(comment.createdAt).toLocaleString()}</small>
             </div>
 
-            <p>{comment.text}</p>
+            <p>{renderTextWithTags(comment.text)}</p>
 
             <div className={styles.commentActions}>
               <div className={styles.voteContainer}>
@@ -160,8 +169,6 @@ const Comments = ({ postId, postAuthorId }) => {
                 >
                   ▲
                 </button>
-
-                
 
                 <button
                   className={`${styles.voteButton} ${comment.userDisliked ? styles.disliked : ""}`}
@@ -184,7 +191,6 @@ const Comments = ({ postId, postAuthorId }) => {
               </div>
             </div>
 
-            {/* ✅ Reply Form */}
             {replyingTo === comment._id && (
               <form onSubmit={(e) => handleCommentSubmit(e, comment._id)} className={styles.replyForm}>
                 <input
@@ -198,20 +204,19 @@ const Comments = ({ postId, postAuthorId }) => {
               </form>
             )}
 
-            {/* ✅ Nested Replies */}
             {comments.filter(c => c.parent === comment._id).map(reply => {
               const canDeleteReply = loggedInUser && (reply.user._id === loggedInUser.id || postAuthorId === loggedInUser.id);
 
               return (
                 <div key={reply._id} className={styles.reply}>
                   <div className={styles.commentHeader}>
-                    <Link href={`/profile?username=${reply.user.username}`} className={styles.commentAuthor}>
+                    <Link href={`/profile?username=.${reply.user.username}`} className={styles.commentAuthor}>
                       <strong>{reply.user.username}</strong>
                     </Link>
                     <small>{new Date(reply.createdAt).toLocaleString()}</small>
                   </div>
 
-                  <p>{reply.text}</p>
+                  <p>{renderTextWithTags(reply.text)}</p>
 
                   <div className={styles.commentActions}>
                     <div className={styles.voteContainer}>

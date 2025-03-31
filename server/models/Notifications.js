@@ -7,8 +7,9 @@ const NotificationSchema = new mongoose.Schema({
       message: { type: String, required: true },
       timestamp: { type: Date, default: Date.now },
       opened: { type: Boolean, default: false },
-      type: { type: String, required: true }, // e.g., "comment", "like", "follow"
-      link: { type: String, required: true },  // direct URL to notification context
+      type: { type: String, required: true },
+      link: { type: String, required: true },
+      fromUser: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: false },
     },
   ],
 });
