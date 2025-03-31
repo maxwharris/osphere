@@ -1,8 +1,9 @@
 import { useRef, useEffect, useState } from "react";
-import api, { isAuthenticated } from "../utils/api"; // ✅ Import centralized API
+import api from "../utils/api";
 import Navbar from "../components/Navbar";
 import styles from "../styles/Messages.module.css";
 import Link from "next/link";
+import { getSocket } from "../lib/socket";
 
 const Messages = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -11,10 +12,9 @@ const Messages = () => {
   const [recentChats, setRecentChats] = useState([]);
   const [messages, setMessages] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [selectedUserName, setSelectedUserName] = useState("");
   const [message, setMessage] = useState("");
   const chatWindowRef = useRef(null);
-  const [isChatOpened, setIsChatOpened] = useState(false);
+  const [loggedInUserId, setLoggedInUserId] = useState(null);
 
   const scrollToBottom = () => {
     if (chatWindowRef.current) {
@@ -23,28 +23,57 @@ const Messages = () => {
   };
 
   useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await api.get("/api/auth/me", { withCredentials: true });
+        setLoggedInUserId(res.data._id);
+      } catch (err) {
+        console.error("Failed to fetch user:", err.response?.data || err.message);
+      }
+    };
+    fetchUser();
     fetchUsers();
     fetchRecentChats();
   }, []);
 
   useEffect(() => {
+    if (!loggedInUserId) return;
+
+    const socket = getSocket(loggedInUserId);
+
+    const handleIncoming = (incomingMsg) => {
+      if (
+        selectedUser &&
+        (incomingMsg.senderId === selectedUser._id || incomingMsg.recipientId === selectedUser._id)
+      ) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            _id: Date.now().toString(),
+            sender: incomingMsg.senderId,
+            recipient: incomingMsg.recipientId,
+            content: incomingMsg.content,
+          },
+        ]);
+      } else {
+        fetchRecentChats();
+      }
+    };
+
+    socket.on("new_message", handleIncoming);
+    return () => {
+      socket.off("new_message", handleIncoming);
+    };
+  }, [loggedInUserId, selectedUser]);
+
+  useEffect(() => {
     if (selectedUser) {
-      // fetchMessages(selectedUser._id);
-      setIsChatOpened(true);
-
-      const interval = setInterval(() => {
-        fetchMessages(selectedUser);
-      }, 3000);
-
-      return () => clearInterval(interval);
+      fetchMessages(selectedUser);
     }
   }, [selectedUser]);
 
   useEffect(() => {
-    if (isChatOpened) {
-      scrollToBottom();
-      setIsChatOpened(false);
-    }
+    scrollToBottom();
   }, [messages]);
 
   const fetchUsers = async () => {
@@ -85,10 +114,8 @@ const Messages = () => {
   const fetchMessages = async (user) => {
     try {
       const res = await api.get(`/api/messages/${user._id}`);
-      
       setMessages(res.data);
-      setSelectedUserName(user.username);
-      setSelectedUser(user._id);
+      setSelectedUser(user);
     } catch (err) {
       console.error("Error fetching messages:", err.response?.data || err.message);
     }
@@ -99,15 +126,13 @@ const Messages = () => {
 
     try {
       const res = await api.post("/api/messages", {
-        recipient: selectedUser,
+        recipient: selectedUser._id,
         content: message,
       });
 
-      setMessages([...messages, res.data]);
+      setMessages((prev) => [...prev, res.data]);
       setMessage("");
-
       fetchRecentChats();
-      scrollToBottom();
     } catch (err) {
       console.error("Error sending message:", err.response?.data || err.message);
     }
@@ -166,14 +191,17 @@ const Messages = () => {
           {selectedUser ? (
             <>
               <h3>
-                chat with{" "}
-                <Link href={`/profile?username=${selectedUserName}`} className={styles.profileLink}>
-                  {selectedUserName}
+                chat with {" "}
+                <Link href={`/profile?username=${selectedUser.username}`} className={styles.profileLink}>
+                  {selectedUser.username}
                 </Link>
               </h3>
               <div className={styles.chatBox} ref={chatWindowRef}>
                 {messages.map((msg) => (
-                  <div key={msg._id} className={msg.sender === selectedUser ? styles.received : styles.sent}>
+                  <div
+                    key={msg._id}
+                    className={msg.sender === loggedInUserId ? styles.sent : styles.received}
+                  >
                     {formatMessageContent(msg.content)}
                   </div>
                 ))}

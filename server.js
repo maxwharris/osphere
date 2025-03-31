@@ -46,6 +46,7 @@ app.use(cors({
   },
   credentials: true,
 }));
+
 app.use(require("cookie-parser")());
 
 app.use(express.json({ limit: "100mb" }));
@@ -63,7 +64,7 @@ app.use("/uploads", express.static(uploadDir));
 // ✅ Connect to MongoDB
 if (!process.env.MONGO_URI) {
   console.error("❌ MONGO_URI is not set. Check your .env file!");
-  process.exit(1); // Stop server if DB URL is missing
+  process.exit(1);
 }
 
 mongoose
@@ -84,7 +85,6 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/notifications", notifRoutes);
 
-
 // ✅ WebSocket setup
 const io = socketIo(server, {
   cors: {
@@ -94,21 +94,39 @@ const io = socketIo(server, {
   },
 });
 
+// ✅ Connected Users Registry
+const connectedUsers = new Map();
+
 io.on("connection", (socket) => {
   console.log("✅ WebSocket Client Connected:", socket.id);
 
+  socket.on("register", (userId) => {
+    connectedUsers.set(userId, socket.id);
+    console.log(`🟢 Registered ${userId} to socket ${socket.id}`);
+  });
+
   socket.on("disconnect", () => {
-    console.log("❌ WebSocket Client Disconnected");
+    for (const [userId, socketId] of connectedUsers.entries()) {
+      if (socketId === socket.id) {
+        connectedUsers.delete(userId);
+        console.log(`🔴 Disconnected ${userId}`);
+        break;
+      }
+    }
   });
 });
+
+// ✅ Export WebSocket context for other modules
+module.exports.io = io;
+module.exports.connectedUsers = connectedUsers;
 
 // ✅ Root endpoint
 app.get("/", (req, res) => {
   res.send("Circles API Running on osphere.io");
 });
 
-// ✅ Start Server
+// ✅ Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
 });

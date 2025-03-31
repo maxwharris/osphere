@@ -1,15 +1,30 @@
 import React, { useEffect, useState } from "react";
 import api from "../utils/api";
 import styles from "../styles/Notifications.module.css";
+import { getSocket } from "../lib/socket";
 
 const NotificationsDropdown = () => {
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [userId, setUserId] = useState(null);
 
   const fetchNotifications = async () => {
     try {
-      const res = await api.get("/api/notifications");
-      setNotifications(res.data);
+      const res = await api.get("/api/notifications", { withCredentials: true });
+      const incoming = res.data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      const seen = new Set();
+      const stacked = [];
+
+      for (const n of incoming) {
+        const key = n.type === "message" && n.fromUser ? `message:${n.fromUser}` : n._id;
+        if (!seen.has(key)) {
+          seen.add(key);
+          stacked.push(n);
+        }
+      }
+
+      setNotifications(stacked);
     } catch (err) {
       console.error("Failed to fetch notifications:", err.response?.data || err.message);
     }
@@ -26,6 +41,15 @@ const NotificationsDropdown = () => {
     }
   };
 
+  const clearAllNotifications = async () => {
+    try {
+      await api.delete("/api/notifications/clear", { withCredentials: true });
+      setNotifications([]);
+    } catch (err) {
+      console.error("Failed to clear notifications:", err.response?.data || err.message);
+    }
+  };
+
   const handleClick = async (notification) => {
     if (!notification.opened) {
       await markAsOpened(notification._id);
@@ -33,15 +57,56 @@ const NotificationsDropdown = () => {
     window.location.href = notification.link;
   };
 
-  useEffect(() => {
-    if (isOpen) fetchNotifications();
-  }, [isOpen]);
-
   const toggleDropdown = () => {
     setIsOpen((prev) => !prev);
   };
 
   const unreadCount = notifications.filter((n) => !n.opened).length;
+
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const res = await api.get("/api/auth/me", { withCredentials: true });
+        setUserId(res.data._id);
+      } catch (err) {
+        console.error("Failed to get user ID for socket:", err.response?.data || err.message);
+      }
+    };
+    getUser();
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const socket = getSocket(userId);
+
+    const handleIncomingNotif = (incomingNotif) => {
+      setNotifications((prev) => {
+        if (incomingNotif.type === "message" && incomingNotif.fromUser) {
+          const filtered = prev.filter(
+            (n) =>
+              n.type !== "message" ||
+              !n.fromUser ||
+              n.fromUser.toString() !== incomingNotif.fromUser.toString()
+          );
+          return [incomingNotif, ...filtered];
+        }
+        return [incomingNotif, ...prev];
+      });
+    };
+
+    socket.on("new_notification", handleIncomingNotif);
+    socket.on("notifications_cleared", () => setNotifications([]));
+
+    return () => {
+      socket.off("new_notification", handleIncomingNotif);
+      socket.off("notifications_cleared");
+    };
+  }, [userId]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   return (
     <div className={styles.dropdownContainer}>
@@ -51,6 +116,11 @@ const NotificationsDropdown = () => {
 
       {isOpen && (
         <div className={styles.dropdownMenu}>
+          {notifications.length > 0 && (
+            <button className={styles.clearButton} onClick={clearAllNotifications}>
+              Clear All
+            </button>
+          )}
           {notifications.length === 0 ? (
             <div className={styles.empty}>No notifications</div>
           ) : (
