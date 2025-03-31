@@ -23,29 +23,89 @@ const Post = ({ post, onDelete }) => {
 
   const formatText = (text) => {
     if (!text) return null;
-
-    const linkRegex = /(https?:\/\/[^\s]+)/g;
-    return text.split("\n").map((line, index) => (
-      <React.Fragment key={index}>
-        {line.split(linkRegex).map((part, i) =>
-          linkRegex.test(part) ? (
-            <a
-              key={i}
-              href={part}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "#3C4C24", textDecoration: "underline" }}
-            >
-              {part}
-            </a>
-          ) : (
-            part
-          )
-        )}
-        <br />
-      </React.Fragment>
-    ));
+  
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+    const doubleBracketLinkRegex = /\[\[([^\]]+)\]\]/g;
+  
+    return text.split("\n").map((line, index) => {
+      const parts = [];
+      let lastIndex = 0;
+  
+      // First replace markdown-style links
+      line.replace(markdownLinkRegex, (match, text, url, offset) => {
+        if (lastIndex < offset) {
+          parts.push(line.slice(lastIndex, offset));
+        }
+        parts.push(
+          <a
+            key={`${index}-md-${offset}`}
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#1E90FF", textDecoration: "underline" }}
+          >
+            {text}
+          </a>
+        );
+        lastIndex = offset + match.length;
+      });
+  
+      // Handle any remaining text after markdown links
+      let leftover = line.slice(lastIndex);
+      lastIndex = 0;
+  
+      // Replace double bracket links ([[link]])
+      leftover.replace(doubleBracketLinkRegex, (match, linkText, offset) => {
+        if (lastIndex < offset) {
+          parts.push(leftover.slice(lastIndex, offset));
+        }
+        const url = `https://${linkText}`;
+        parts.push(
+          <a
+            key={`${index}-bb-${offset}`}
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#1E90FF", textDecoration: "underline" }}
+          >
+            {linkText}
+          </a>
+        );
+        lastIndex = offset + match.length;
+      });
+  
+      if (lastIndex < leftover.length) {
+        leftover = leftover.slice(lastIndex);
+        // Replace plain URLs in the remainder
+        leftover.split(urlRegex).forEach((part, i) => {
+          parts.push(
+            urlRegex.test(part) ? (
+              <a
+                key={`${index}-url-${i}`}
+                href={part}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#1E90FF", textDecoration: "underline" }}
+              >
+                {part}
+              </a>
+            ) : (
+              part
+            )
+          );
+        });
+      }
+  
+      return (
+        <React.Fragment key={index}>
+          {parts}
+          <br />
+        </React.Fragment>
+      );
+    });
   };
+  
 
   useEffect(() => {
     const fetchPostDetails = async () => {

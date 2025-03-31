@@ -19,23 +19,23 @@ const Comments = ({ postId, postAuthorId }) => {
       const userData = await api.get("/api/auth/me");
       const loggedInUser = userData.data;
 
-      const updatedComments = res.data.map(comment => {
-        const userLiked = loggedInUser ? comment.likes.includes(loggedInUser.id) : false;
-        const userDisliked = loggedInUser ? comment.dislikes.includes(loggedInUser.id) : false;
+      const updatedComments = res.data.map((comment) => {
+        const userLiked = loggedInUser ? comment.likes.includes(loggedInUser._id) : false;
+        const userDisliked = loggedInUser ? comment.dislikes.includes(loggedInUser._id) : false;
 
         return {
           ...comment,
           userLiked,
           userDisliked,
-          replies: comment.replies.map(reply => ({
+          replies: comment.replies.map((reply) => ({
             ...reply,
-            userLiked: loggedInUser ? reply.likes.includes(loggedInUser.id) : false,
-            userDisliked: loggedInUser ? reply.dislikes.includes(loggedInUser.id) : false
-          }))
+            userLiked: loggedInUser ? reply.likes.includes(loggedInUser._id) : false,
+            userDisliked: loggedInUser ? reply.dislikes.includes(loggedInUser._id) : false,
+          })),
         };
       });
 
-      // SORT BY VOTES, THEN DATE
+      // Sort by score then date
       updatedComments.sort((a, b) => {
         const aScore = a.likes.length - a.dislikes.length;
         const bScore = b.likes.length - b.dislikes.length;
@@ -78,7 +78,7 @@ const Comments = ({ postId, postAuthorId }) => {
 
     try {
       await api.delete(`/api/comments/${commentId}`);
-      setComments(comments.filter(comment => comment._id !== commentId));
+      setComments(comments.filter((comment) => comment._id !== commentId));
     } catch (err) {
       console.error("Error deleting comment:", err.response?.data || err.message);
     }
@@ -92,45 +92,147 @@ const Comments = ({ postId, postAuthorId }) => {
     try {
       const res = await api.post(`/api/comments/${commentId}/vote`, { voteType });
 
-      setComments(prevComments =>
-        prevComments.map(comment => ({
+      setComments((prevComments) =>
+        prevComments.map((comment) => ({
           ...comment,
           likes: comment._id === commentId ? Array(res.data.likes).fill("") : comment.likes,
           dislikes: comment._id === commentId ? Array(res.data.dislikes).fill("") : comment.dislikes,
           userLiked: comment._id === commentId ? res.data.userLiked : comment.userLiked,
           userDisliked: comment._id === commentId ? res.data.userDisliked : comment.userDisliked,
-          replies: comment.replies.map(reply =>
+          replies: comment.replies.map((reply) =>
             reply._id === commentId
               ? {
                   ...reply,
                   likes: Array(res.data.likes).fill(""),
                   dislikes: Array(res.data.dislikes).fill(""),
                   userLiked: res.data.userLiked,
-                  userDisliked: res.data.userDisliked
+                  userDisliked: res.data.userDisliked,
                 }
               : reply
-          )
+          ),
         }))
       );
-
     } catch (err) {
       console.error("Error voting:", err.response?.data || err.message);
     }
   };
 
-  const renderTextWithTags = (text) => {
-    return text.split(/(\.[a-zA-Z0-9_]+)/g).map((part, i) => {
-      if (part.startsWith(".")) {
-        const username = part.slice(1);
-        return (
-          <Link key={i} href={`/profile?username=.${username}`}>
-            <span className={styles.tag}>.{username}</span>
+  const renderCommentText = (text) => {
+    if (!text) return null;
+  
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+    const doubleBracketLinkRegex = /\[\[([^\]]+)\]\]/g;
+    const tagRegex = /(^|\s)(\.[a-zA-Z0-9_]+)/g;
+  
+    return text.split("\n").map((line, index) => {
+      let parts = [];
+      let lastIndex = 0;
+  
+      // Handle markdown links first
+      line.replace(markdownLinkRegex, (match, linkText, url, offset) => {
+        if (lastIndex < offset) {
+          parts.push(line.slice(lastIndex, offset));
+        }
+        parts.push(
+          <a
+            key={`${index}-md-${offset}`}
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#1E90FF", textDecoration: "underline" }}
+          >
+            {linkText}
+          </a>
+        );
+        lastIndex = offset + match.length;
+      });
+  
+      let leftover = line.slice(lastIndex);
+      lastIndex = 0;
+  
+      // Handle double brackets
+      leftover.replace(doubleBracketLinkRegex, (match, inner, offset) => {
+        if (lastIndex < offset) {
+          parts.push(leftover.slice(lastIndex, offset));
+        }
+        parts.push(
+          <a
+            key={`${index}-bb-${offset}`}
+            href={`https://${inner}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#1E90FF", textDecoration: "underline" }}
+          >
+            {inner}
+          </a>
+        );
+        lastIndex = offset + match.length;
+      });
+  
+      leftover = leftover.slice(lastIndex);
+  
+      // Final pass: tags + URLs
+      let lastPos = 0;
+      leftover.replace(tagRegex, (match, space, tag, offset) => {
+        if (lastPos < offset) {
+          const slice = leftover.slice(lastPos, offset);
+          slice.split(urlRegex).forEach((token, i) => {
+            if (urlRegex.test(token)) {
+              parts.push(
+                <a
+                  key={`${index}-url-${offset}-${i}`}
+                  href={token}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "#1E90FF", textDecoration: "underline" }}
+                >
+                  {token}
+                </a>
+              );
+            } else {
+              parts.push(token);
+            }
+          });
+        }
+  
+        if (space) parts.push(space);
+        parts.push(
+          <Link key={`${index}-tag-${offset}`} href={`/profile?username=${tag}`}>
+            <span className={styles.tag}>{tag}</span>
           </Link>
         );
-      }
-      return part;
+  
+        lastPos = offset + match.length;
+      });
+  
+      const final = leftover.slice(lastPos);
+      final.split(urlRegex).forEach((token, i) => {
+        if (urlRegex.test(token)) {
+          parts.push(
+            <a
+              key={`${index}-url-final-${i}`}
+              href={token}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "#1E90FF", textDecoration: "underline" }}
+            >
+              {token}
+            </a>
+          );
+        } else {
+          parts.push(token);
+        }
+      });
+  
+      return (
+        <span key={index}>
+          {parts}
+          <br />
+        </span>
+      );
     });
-  };
+  };  
 
   return (
     <div className={styles.commentsSection}>
@@ -145,108 +247,113 @@ const Comments = ({ postId, postAuthorId }) => {
         <button type="submit">reply</button>
       </form>
 
-      {comments.filter(c => !c.parent).map((comment) => {
-        const loggedInUser = JSON.parse(localStorage.getItem("user"));
-        const canDelete = loggedInUser && (comment.user._id === loggedInUser.id || postAuthorId === loggedInUser.id);
+      {comments
+        .filter((c) => !c.parent)
+        .map((comment) => {
+          const loggedInUser = JSON.parse(localStorage.getItem("user"));
+          const canDelete = loggedInUser && (comment.user._id === loggedInUser.id || postAuthorId === loggedInUser.id);
 
-        return (
-          <div key={comment._id} className={styles.comment}>
-            <div className={styles.commentHeader}>
-              <Link href={`/profile?username=${comment.user.username}`} className={styles.commentAuthor}>
-                <strong>{comment.user.username}</strong>
-              </Link>
-              <small>{new Date(comment.createdAt).toLocaleString()}</small>
-            </div>
-
-            <p>{renderTextWithTags(comment.text)}</p>
-
-            <div className={styles.commentActions}>
-              <div className={styles.voteContainer}>
-                <span>{comment.likes.length - comment.dislikes.length}</span>
-                <button
-                  className={`${styles.voteButton} ${comment.userLiked ? styles.liked : ""}`}
-                  onClick={() => handleVote(comment._id, "like")}
-                >
-                  ▲
-                </button>
-
-                <button
-                  className={`${styles.voteButton} ${comment.userDisliked ? styles.disliked : ""}`}
-                  onClick={() => handleVote(comment._id, "dislike")}
-                >
-                  ▼
-                </button>
+          return (
+            <div key={comment._id} className={styles.comment}>
+              <div className={styles.commentHeader}>
+                <Link href={`/profile?username=${comment.user.username}`} className={styles.commentAuthor}>
+                  <strong>{comment.user.username}</strong>
+                </Link>
+                <small>{new Date(comment.createdAt).toLocaleString()}</small>
               </div>
 
-              <div className={styles.commentButtons}>
-                <button onClick={() => setReplyingTo(comment._id)} className={styles.replyButton}>
-                  reply
-                </button>
+              <p>{renderCommentText(comment.text)}</p>
 
-                {canDelete && (
-                  <button className={styles.deleteCommentButton} onClick={() => handleDeleteComment(comment._id)}>
-                    delete
+              <div className={styles.commentActions}>
+                <div className={styles.voteContainer}>
+                  <span>{comment.likes.length - comment.dislikes.length}</span>
+                  <button
+                    className={`${styles.voteButton} ${comment.userLiked ? styles.liked : ""}`}
+                    onClick={() => handleVote(comment._id, "like")}
+                  >
+                    ▲
                   </button>
-                )}
-              </div>
-            </div>
 
-            {replyingTo === comment._id && (
-              <form onSubmit={(e) => handleCommentSubmit(e, comment._id)} className={styles.replyForm}>
-                <input
-                  type="text"
-                  placeholder="write a reply..."
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  required
-                />
-                <button type="submit">reply</button>
-              </form>
-            )}
-
-            {comments.filter(c => c.parent === comment._id).map(reply => {
-              const canDeleteReply = loggedInUser && (reply.user._id === loggedInUser.id || postAuthorId === loggedInUser.id);
-
-              return (
-                <div key={reply._id} className={styles.reply}>
-                  <div className={styles.commentHeader}>
-                    <Link href={`/profile?username=.${reply.user.username}`} className={styles.commentAuthor}>
-                      <strong>{reply.user.username}</strong>
-                    </Link>
-                    <small>{new Date(reply.createdAt).toLocaleString()}</small>
-                  </div>
-
-                  <p>{renderTextWithTags(reply.text)}</p>
-
-                  <div className={styles.commentActions}>
-                    <div className={styles.voteContainer}>
-                      <span>{reply.likes.length - reply.dislikes.length}</span>
-                      <button
-                        className={`${styles.voteButton} ${reply.userLiked ? styles.liked : ""}`}
-                        onClick={() => handleVote(reply._id, "like", true)}
-                      >
-                        ▲
-                      </button>
-                      <button
-                        className={`${styles.voteButton} ${reply.userDisliked ? styles.disliked : ""}`}
-                        onClick={() => handleVote(reply._id, "dislike", true)}
-                      >
-                        ▼
-                      </button>
-                    </div>
-
-                    {canDeleteReply && (
-                      <button className={styles.deleteCommentButton} onClick={() => handleDeleteComment(reply._id)}>
-                        delete
-                      </button>
-                    )}
-                  </div>
+                  <button
+                    className={`${styles.voteButton} ${comment.userDisliked ? styles.disliked : ""}`}
+                    onClick={() => handleVote(comment._id, "dislike")}
+                  >
+                    ▼
+                  </button>
                 </div>
-              );
-            })}
-          </div>
-        );
-      })}
+
+                <div className={styles.commentButtons}>
+                  <button onClick={() => setReplyingTo(comment._id)} className={styles.replyButton}>
+                    reply
+                  </button>
+
+                  {canDelete && (
+                    <button className={styles.deleteCommentButton} onClick={() => handleDeleteComment(comment._id)}>
+                      delete
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {replyingTo === comment._id && (
+                <form onSubmit={(e) => handleCommentSubmit(e, comment._id)} className={styles.replyForm}>
+                  <input
+                    type="text"
+                    placeholder="write a reply..."
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    required
+                  />
+                  <button type="submit">reply</button>
+                </form>
+              )}
+
+              {comments
+                .filter((c) => c.parent === comment._id)
+                .map((reply) => {
+                  const canDeleteReply =
+                    loggedInUser && (reply.user._id === loggedInUser.id || postAuthorId === loggedInUser.id);
+
+                  return (
+                    <div key={reply._id} className={styles.reply}>
+                      <div className={styles.commentHeader}>
+                        <Link href={`/profile?username=${reply.user.username}`} className={styles.commentAuthor}>
+                          <strong>{reply.user.username}</strong>
+                        </Link>
+                        <small>{new Date(reply.createdAt).toLocaleString()}</small>
+                      </div>
+
+                      <p>{renderCommentText(reply.text)}</p>
+
+                      <div className={styles.commentActions}>
+                        <div className={styles.voteContainer}>
+                          <span>{reply.likes.length - reply.dislikes.length}</span>
+                          <button
+                            className={`${styles.voteButton} ${reply.userLiked ? styles.liked : ""}`}
+                            onClick={() => handleVote(reply._id, "like", true)}
+                          >
+                            ▲
+                          </button>
+                          <button
+                            className={`${styles.voteButton} ${reply.userDisliked ? styles.disliked : ""}`}
+                            onClick={() => handleVote(reply._id, "dislike", true)}
+                          >
+                            ▼
+                          </button>
+                        </div>
+
+                        {canDeleteReply && (
+                          <button className={styles.deleteCommentButton} onClick={() => handleDeleteComment(reply._id)}>
+                            delete
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          );
+        })}
     </div>
   );
 };

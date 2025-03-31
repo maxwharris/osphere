@@ -127,7 +127,7 @@
 }
 
 .toggleCommentsButton:hover {
-  color: #152940;
+  color: #1E90FF;
   text-decoration: underline;
 }
 
@@ -157,7 +157,7 @@
   background: #f9f9f9;
   border-radius: 5px;
   text-decoration: none;
-  color: #152940;
+  color: #1E90FF;
   font-size: 16px;
 }
 
@@ -183,7 +183,7 @@
 .searchInput {
   width: 70%;
   padding: 10px;
-  border: 2px solid #152940;
+  border: 2px solid #1E90FF;
   border-radius: 8px;
   font-size: 16px;
   outline: none;
@@ -191,11 +191,11 @@
 }
 
 .searchInput:focus {
-  border-color: #152940;
+  border-color: #1E90FF;
 }
 
 .searchButton {
-  background: #152940;
+  background: #1E90FF;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -206,7 +206,7 @@
 }
 
 .searchButton:hover {
-  background: #152940;
+  background: #1E90FF;
 }
 
 .authorLink {
@@ -265,13 +265,13 @@
 .shareInput {
   width: 70%;
   padding: 8px;
-  border: 1px solid #152940;
+  border: 1px solid #1E90FF;
   border-radius: 5px;
   font-size: 14px;
 }
 
 .shareButton {
-  background: #152940;
+  background: #1E90FF;
   color: white;
   border: none;
   padding: 8px 12px;
@@ -282,7 +282,7 @@
 }
 
 .shareButton:hover {
-  background: #152940;
+  background: #1E90FF;
 }
 
 .successMessage {
@@ -318,9 +318,9 @@
 }
 
 .shareOption {
-  background: #152940;
+  background: #1E90FF;
   color: white;
-  border: 2px solid #152940;
+  border: 2px solid #1E90FF;
   padding: 10px 15px;
   border-radius: 10px;
   cursor: pointer;
@@ -335,16 +335,16 @@
 .shareDropdown {
   width: 200px;
   padding: 10px;
-  border: 2px solid #152940;
+  border: 2px solid #1E90FF;
   border-radius: 10px;
   background: white;
   cursor: pointer;
 }
 
 .overlayCloseButton {
-  background: #152940;
+  background: #1E90FF;
   color: white;
-  border: 2px solid #152940;
+  border: 2px solid #1E90FF;
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
