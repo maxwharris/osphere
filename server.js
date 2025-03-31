@@ -98,11 +98,8 @@ const io = socketIo(server, {
 const connectedUsers = new Map();
 
 io.on("connection", (socket) => {
-  console.log("✅ WebSocket Client Connected:", socket.id);
-
   socket.on("register", (userId) => {
     connectedUsers.set(userId, socket.id);
-    console.log(`🟢 Registered ${userId} to socket ${socket.id}`);
   });
 
   socket.on("disconnect", () => {
