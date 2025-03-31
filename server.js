@@ -105,6 +105,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     for (const [userId, socketId] of connectedUsers.entries()) {
       if (socketId === socket.id) {
+        //
         connectedUsers.delete(userId);
         console.log(`🔴 Disconnected ${userId}`);
         break;
