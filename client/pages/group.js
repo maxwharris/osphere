@@ -54,7 +54,10 @@ const GroupPage = () => {
   const fetchGroupPosts = async (groupId) => {
     try {
       const res = await api.get(`/api/posts/group/${groupId}`);
-      setPosts(res.data);
+      setPosts(res.data.map(post => ({
+        ...post,
+        group: post.group?._id || post.group
+      })));
     } catch (err) {
       console.error("Error fetching posts:", err.response?.data || err.message);
     }
@@ -63,7 +66,7 @@ const GroupPage = () => {
   const handleJoinLeaveGroup = async () => {
     try {
       const endpoint = isMember ? "leave" : "join";
-      await api.post(`/api/groups/${groupName}/${endpoint}`);
+      await api.post(`/api/groups/${group.name}/${endpoint}`);
       setIsMember(!isMember);
       fetchGroup(subdomain, user); // re-fetch group with current user
     } catch (err) {
@@ -74,7 +77,7 @@ const GroupPage = () => {
   const assignModerator = async (memberId) => {
     if (!memberId) return;
     try {
-      await api.post(`/api/groups/${group._id}/moderators/add`, { memberId });
+      await api.post(`/api/groups/${group.name}/moderators/add`, { userId: memberId });
       fetchGroup(group.name, user);
     } catch (err) {
       console.error("Error assigning moderator:", err.response?.data || err.message);
@@ -83,7 +86,7 @@ const GroupPage = () => {
 
   const removeModerator = async (modId) => {
     try {
-      await api.post(`/api/groups/${group._id}/moderators/remove`, { modId });
+      await api.post(`/api/groups/${group.name}/moderators/remove`, { userId: modId });
       fetchGroup(group.name, user);
     } catch (err) {
       console.error("Error removing moderator:", err.response?.data || err.message);

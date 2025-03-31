@@ -54,8 +54,6 @@ router.get("/id/:groupId", async (req, res) => {
     }
 });
 
-
-
 // ✅ Fetch all public groups
 router.get("/", async (req, res) => {
     try {
@@ -76,7 +74,7 @@ router.get("/:groupName", authMiddleware, async (req, res) => {
 
         if (!group) return res.status(404).json({ error: "Group not found" });
 
-        if (group.isPrivate && !group.members.includes(req.user.id)) {
+        if (group.isPrivate && !group.members.includes(req.user.userId)) {
             return res.status(403).json({ error: "You do not have permission to view this group" });
         }
 
@@ -89,11 +87,11 @@ router.get("/:groupName", authMiddleware, async (req, res) => {
 // ✅ Join a group
 router.post("/:groupName/join", authMiddleware, async (req, res) => {
     try {
+
         const group = await Group.findOne({ name: req.params.groupName });
         if (!group) return res.status(404).json({ error: "Group not found" });
-
-        if (!group.members.includes(req.user.id)) {
-            group.members.push(req.user.id);
+        if (!group.members.includes(req.user.userId)) {
+            group.members.push(req.user.userId);
             await group.save();
         }
 
@@ -109,7 +107,9 @@ router.post("/:groupName/leave", authMiddleware, async (req, res) => {
         const group = await Group.findOne({ name: req.params.groupName });
         if (!group) return res.status(404).json({ error: "Group not found" });
 
-        group.members = group.members.filter((member) => member.toString() !== req.user.id);
+        group.members = group.members.filter(
+            (member) => member && member.toString() !== req.user.userId
+          );
         await group.save();
 
         res.json({ message: "Left the group successfully", group });
@@ -153,8 +153,7 @@ router.post("/:groupName/moderators/add", authMiddleware, async (req, res) => {
         const group = await Group.findOne({ name: req.params.groupName });
 
         if (!group) return res.status(404).json({ error: "Group not found" });
-
-        if (group.admin.toString() !== req.user.id) {
+        if (group.admin.toString() !== req.user.userId) {
             return res.status(403).json({ error: "Only the admin can assign moderators" });
         }
 
@@ -180,7 +179,7 @@ router.post("/:groupName/moderators/remove", authMiddleware, async (req, res) =>
 
         if (!group) return res.status(404).json({ error: "Group not found" });
 
-        if (group.admin.toString() !== req.user.id) {
+        if (group.admin.toString() !== req.user.userId) {
             return res.status(403).json({ error: "Only the admin can remove moderators" });
         }
 
