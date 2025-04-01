@@ -16,8 +16,24 @@ const GroupPage = () => {
   const [isMember, setIsMember] = useState(false);
   const [newPost, setNewPost] = useState("");
   const [posts, setPosts] = useState([]);
+  const [sortOption, setSortOption] = useState("newest");
   const [selectedMember, setSelectedMember] = useState("");
   const subdomain = typeof window !== "undefined" ? window.location.hostname.split(".")[0] : "";
+
+  const sortPosts = (posts, option) => {
+    const sorted = [...posts];
+    switch (option) {
+      case "oldest":
+        return sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      case "mostLikes":
+        return sorted.sort((a, b) => b.likes.length - a.likes.length);
+      case "mostDislikes":
+        return sorted.sort((a, b) => b.dislikes.length - a.dislikes.length);
+      case "newest":
+      default:
+        return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+  };
 
   useEffect(() => {
     if (subdomain && subdomain !== "osphere") {
@@ -54,13 +70,20 @@ const GroupPage = () => {
   const fetchGroupPosts = async (groupId) => {
     try {
       const res = await api.get(`/api/posts/group/${groupId}`);
-      setPosts(res.data.map(post => ({
+      const sorted = sortPosts(res.data.map(post => ({
         ...post,
         group: post.group?._id || post.group
-      })));
+      })), sortOption);
+      setPosts(sorted);
     } catch (err) {
       console.error("Error fetching posts:", err.response?.data || err.message);
     }
+  };
+
+  const handleSortChange = (e) => {
+    const newOption = e.target.value;
+    setSortOption(newOption);
+    setPosts((prev) => sortPosts(prev, newOption));
   };
 
   const handleJoinLeaveGroup = async () => {
@@ -129,6 +152,16 @@ const GroupPage = () => {
             {isMember ? "Leave" : "Join"}
           </button>
         )}
+
+        <div className={styles.sortBar}>
+          <label htmlFor="sort">Sort by:</label>
+          <select id="sort" value={sortOption} onChange={handleSortChange}>
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="mostLikes">Most Likes</option>
+            <option value="mostDislikes">Most Dislikes</option>
+          </select>
+        </div>
 
         {posts.length > 0 ? (
           posts.map((post) => <Post key={post._id} post={post} />)

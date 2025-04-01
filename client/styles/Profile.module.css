@@ -1,7 +1,6 @@
 .profileContainer {
     color: white;
     padding-top: 15px;
-    /* for fixed navbar */
     min-height: 100vh;
     font-family: Inter, Roboto, sans-serif;
     display: flex;
@@ -9,14 +8,12 @@
     align-items: center;
 }
 
-/* ✅ Center the profile card */
 .profileCardWrapper {
     display: flex;
     justify-content: center;
     margin-bottom: 0px;
 }
 
-/* ✅ Center and style the settings/edit profile link */
 .settingsLink {
     text-align: center;
     margin-top: 0px;
@@ -33,7 +30,6 @@
     text-decoration: underline;
 }
 
-/* ✅ Style for the posts container */
 .postsSection {
     max-width: 600px;
     margin: 0 auto;
@@ -41,14 +37,54 @@
     padding: 0 0;
 }
 
-.postsSection h3 {
+.postsSectionHeader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.postsSectionHeader h3 {
     font-size: 18px;
     color: white;
-    margin-bottom: 10px;
+    margin: 0;
 }
 
 .noPostsMessage {
     text-align: center;
     color: #aaa;
     font-size: 14px;
+}
+
+.sortBar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+
+.sortBar label {
+    font-weight: 500;
+}
+
+.sortBar select {
+    padding: 0.4rem 0.8rem;
+    background-color: #2c2c2c;
+    color: #ffffff;
+    border: 1px solid #444;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.sortBar select:focus {
+    outline: none;
+    border-color: #1E90FF;
+    box-shadow: 0 0 0 2px rgba(60, 76, 36, 0.4);
 }

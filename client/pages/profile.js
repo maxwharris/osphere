@@ -15,8 +15,24 @@ const Profile = () => {
   const [error, setError] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isSelfProfile, setIsSelfProfile] = useState(false);
+  const [sortOption, setSortOption] = useState("newest");
   const router = useRouter();
   const { username } = router.query;
+
+  const sortPosts = (posts, option) => {
+    const sorted = [...posts];
+    switch (option) {
+      case "oldest":
+        return sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      case "mostLikes":
+        return sorted.sort((a, b) => b.likes.length - a.likes.length);
+      case "mostDislikes":
+        return sorted.sort((a, b) => b.dislikes.length - a.dislikes.length);
+      case "newest":
+      default:
+        return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+  };
 
   useEffect(() => {
     if (username) {
@@ -44,7 +60,7 @@ const Profile = () => {
 
       // ✅ Fetch user’s posts
       const postsRes = await api.get(`/api/users/${profileUser._id}/posts`);
-      setPosts(postsRes.data);
+      setPosts(sortPosts(postsRes.data, sortOption))
 
       setLoading(false);
     } catch (err) {
@@ -52,6 +68,12 @@ const Profile = () => {
       setError("User not found or session expired.");
       setLoading(false);
     }
+  };
+
+  const handleSortChange = (e) => {
+    const newOption = e.target.value;
+    setSortOption(newOption);
+    setPosts((prev) => sortPosts(prev, newOption));
   };
 
   const handleFollowToggle = async () => {
@@ -92,7 +114,18 @@ const Profile = () => {
       )}
 
       <div className={styles.postsSection}>
-        <h3>{userProfile.username}'s posts</h3>
+        <h3 className={styles.postsSectionHeader}>{userProfile.username}'s posts</h3>
+
+        <div className={styles.sortBar}>
+          <label htmlFor="sort">Sort by:</label>
+          <select id="sort" value={sortOption} onChange={handleSortChange}>
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="mostLikes">Most Likes</option>
+            <option value="mostDislikes">Most Dislikes</option>
+          </select>
+        </div>
+
         {posts.length === 0 ? (
           <p className={styles.noPostsMessage}>no posts available.</p>
         ) : (

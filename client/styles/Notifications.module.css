@@ -1,18 +1,21 @@
 .dropdownContainer {
   position: relative;
   display: inline-block;
-  margin-right: 0;
+  margin-right: 0px;
 }
 
 .dropdownToggle {
   background: none;
   border: none;
-  font-size: 20px;
-  font-family: "Roboto", sans-serif;
   color: white;
-  font-weight: bold;
+  font-family: 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.3s ease;
   cursor: pointer;
   position: relative;
+  margin-right: 0px;
 }
 
 .unreadDot {
@@ -97,4 +100,8 @@
   background: #2a2a2a;
   color: white;
   border-color: #777;
+}
+
+.scrolledToggle {
+  color: #1B1B1D; /* Match .scrolled .links a from Navbar.module.css */
 }

@@ -3,7 +3,7 @@ import api from "../utils/api";
 import styles from "../styles/Notifications.module.css";
 import { getSocket } from "../lib/socket";
 
-const NotificationsDropdown = () => {
+const NotificationsDropdown = ({ scrolled }) => {
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [userId, setUserId] = useState(null);
@@ -110,8 +110,11 @@ const NotificationsDropdown = () => {
 
   return (
     <div className={styles.dropdownContainer}>
-      <button className={styles.dropdownToggle} onClick={toggleDropdown}>
-        {unreadCount > 0 ? unreadCount : "0"}
+      <button
+        className={`${styles.dropdownToggle} ${scrolled ? styles.scrolledToggle : ""}`}
+        onClick={toggleDropdown}
+      >
+        🔔{unreadCount > 0 ? unreadCount : "0"}
       </button>
 
       {isOpen && (

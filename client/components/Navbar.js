@@ -79,14 +79,14 @@ const Navbar = () => {
         <div className={styles.links}>
           {user ? (
             <>
-              <NotificationsDropdown /> {/* ✅ Added here */}
+              <NotificationsDropdown scrolled={scrolled} />
               <Link href="https://osphere.io/search">search</Link>
               <Link href="https://osphere.io/createpost">create</Link>
               <Link href="https://osphere.io/messages">message</Link>
               <Link href={`https://osphere.io/profile?username=${user.username}`}>
                 {user.username}
               </Link>
-              <button onClick={handleLogout} className={styles.logoutButton}>logout</button>
+              <button onClick={handleLogout} className={styles.logoutButton} >logout</button>
             </>
           ) : (
             <>

@@ -7,6 +7,9 @@ const path = require("path");
 const fs = require("fs");
 const http = require("http");
 const socketIo = require("socket.io");
+const session = require("express-session");
+const passport = require("passport");
+require("./server/auth/google"); // <-- ✅ Import the Google strategy
 
 const authRoutes = require("./server/routes/auth");
 const postRoutes = require("./server/routes/posts");
@@ -52,7 +55,23 @@ app.use(require("cookie-parser")());
 app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ limit: "100mb", extended: true }));
 
-// ✅ Serve images & uploads as static files, with CORS for audio
+// ✅ Session middleware for Passport
+app.use(session({
+  secret: "keyboard cat", // ⚠️ Replace with strong secret in production
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true,
+    sameSite: "lax",
+    domain: ".osphere.io"
+  }
+}));
+
+// ✅ Initialize Passport.js
+app.use(passport.initialize());
+app.use(passport.session());
+
+// ✅ Serve images & uploads as static files
 app.use("/uploads", (req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, OPTIONS");
@@ -94,7 +113,6 @@ const io = socketIo(server, {
   },
 });
 
-// ✅ Connected Users Registry
 const connectedUsers = new Map();
 
 io.on("connection", (socket) => {
@@ -105,7 +123,6 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     for (const [userId, socketId] of connectedUsers.entries()) {
       if (socketId === socket.id) {
-        //
         connectedUsers.delete(userId);
         console.log(`🔴 Disconnected ${userId}`);
         break;
@@ -114,16 +131,13 @@ io.on("connection", (socket) => {
   });
 });
 
-// ✅ Export WebSocket context for other modules
 module.exports.io = io;
 module.exports.connectedUsers = connectedUsers;
 
-// ✅ Root endpoint
 app.get("/", (req, res) => {
   res.send("Circles API Running on osphere.io");
 });
 
-// ✅ Start server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);

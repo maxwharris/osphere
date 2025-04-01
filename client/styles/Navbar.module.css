@@ -25,7 +25,7 @@
 }
 
 .scrolled .links a,
-.scrolled .logo {
+.scrolled .logo, .scrolled .logoutButton {
   color: #161619;
   transition: color 0.3s ease;
 }
@@ -41,8 +41,10 @@
 }
 
 .links a {
+  
   margin-left: 25px;
   color: white;
+  font-family: 'Inter', sans-serif;
   font-weight: 500;
   text-decoration: none;
   transition: color 0.3s ease;
@@ -53,12 +55,15 @@
 }
 
 .logoutButton {
+  font-family: 'Inter', sans-serif;
   background: none;
   border: none;
   color: white;
   font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
   cursor: pointer;
-  margin-left: 25px;
+  margin-left: 15px;
   transition: color 0.3s ease;
 }
 

@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const authMiddleware = require("../middleware/auth");
 const nodemailer = require("nodemailer");
+const passport = require("passport");
+require("../auth/google"); // import passport strategy
 
 const router = express.Router();
 const JWT_SECRET = "your_secret_key"; // Use environment variable for production
@@ -54,7 +56,7 @@ router.post("/register", async (req, res) => {
     const mailOptions = {
       to: email,
       subject: "verify your Email",
-      html: `<p>vlick <a href="${verificationUrl}">here</a> to verify your email.</p>`,
+      html: `<p>click <a href="${verificationUrl}">here</a> to verify your email.</p>`,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -196,3 +198,23 @@ router.post("/logout", (req, res) => {
 });
 
 module.exports = router;
+
+router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+
+router.get("/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/login",
+    session: false,
+  }),
+  (req, res) => {
+    const token = jwt.sign({ userId: req.user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      domain: ".osphere.io",
+    });
+
+    res.redirect("https://osphere.io"); // Redirect after successful login
+  }
+);
