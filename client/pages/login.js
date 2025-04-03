@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import api from "../utils/api";
 import Navbar from "../components/Navbar";
+import styles from "../styles/Register.module.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -32,27 +33,25 @@ const Login = () => {
   return (
     <div>
       <Navbar />
-      <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <div className={styles.container}>
         <h2>login</h2>
-        <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: "10px" }}>
-            <label>email: </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <label>password: </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+        <form onSubmit={handleLogin} className={styles.form}>
+          <input
+            type="email"
+            placeholder="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className={styles.input}
+          />
+          <input
+            type="password"
+            placeholder="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className={styles.input}
+          />
           <button type="submit">login</button>
         </form>
         {error && <p style={{ color: "red" }}>{error}</p>}

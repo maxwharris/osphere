@@ -1,17 +1,20 @@
 import { useState } from "react";
-import api from "../utils/api"; // ✅ Centralized API instance
+import api from "../utils/api";
 import Navbar from "../components/Navbar";
 import Post from "../components/Post";
 import ProfileCard from "../components/ProfileCard";
+import GroupCard from "../components/GroupCard";
 import styles from "../styles/Post.module.css";
 import stylessort from "../styles/Search.module.css";
 
 const Search = () => {
   const [query, setQuery] = useState("");
   const [userResults, setUserResults] = useState([]);
+  const [groupResults, setGroupResults] = useState([]);
   const [postResults, setPostResults] = useState([]);
   const [error, setError] = useState(null);
   const [sortOption, setSortOption] = useState("newest");
+  const [showInfo, setShowInfo] = useState(false); // 👈 NEW
 
   const sortPosts = (posts, option) => {
     const sorted = [...posts];
@@ -36,8 +39,15 @@ const Search = () => {
       const res = await api.get(`/api/search?q=${query}`);
 
       setUserResults(res.data.users || []);
+      setGroupResults(res.data.groups || []);
       setPostResults(sortPosts(res.data.posts || [], sortOption));
-      setError(res.data.users.length === 0 && res.data.posts.length === 0 ? "No results found." : null);
+
+      const noResults =
+        (res.data.users?.length || 0) === 0 &&
+        (res.data.groups?.length || 0) === 0 &&
+        (res.data.posts?.length || 0) === 0;
+
+      setError(noResults ? "No results found." : null);
     } catch (err) {
       console.error("❌ Search failed:", err.response?.data || err.message);
       setError("no results found.");
@@ -55,16 +65,43 @@ const Search = () => {
       <Navbar />
       <div className={styles.searchContainer}>
         <h2>search</h2>
-        <form onSubmit={handleSearch} className={styles.searchForm}>
+
+        {/* SEARCH BAR + INFO BUTTON */}
+        <form onSubmit={handleSearch} className={styles.searchForm} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="search for users ('.username') or posts"
+            placeholder="search..."
             className={styles.searchInput}
           />
           <button type="submit" className={styles.searchButton}>Search</button>
+          <button
+            type="button"
+            title="how to search"
+            onClick={() => setShowInfo(!showInfo)}
+            style={{
+              padding: "0.3rem 0.6rem",
+              background: "#444",
+              color: "#fff",
+              border: "none",
+              borderRadius: "50%",
+              fontWeight: "bold",
+              cursor: "pointer"
+            }}
+          >
+            i
+          </button>
         </form>
+
+        {/* INFO BOX */}
+        {showInfo && (
+          <div className={stylessort.infoBox}>
+            <p><code>.username</code> → search for users</p>
+            <p><code>groupname.</code> → search for groups</p>
+            <p><code>any keyword</code> → search for posts</p>
+          </div>
+        )}
 
         {error && <p className={styles.errorText}>{error}</p>}
 
@@ -77,10 +114,18 @@ const Search = () => {
           </div>
         )}
 
+        {groupResults.length > 0 && (
+          <div className={styles.searchResults}>
+            <h3>groups</h3>
+            {groupResults.map((group) => (
+              <GroupCard key={group.name} group={group} />
+            ))}
+          </div>
+        )}
+
         {postResults.length > 0 && (
           <div className={stylessort.searchResults}>
             <div className={stylessort.postsSectionHeader}>
-              <h3>posts</h3>
               <div className={stylessort.sortBar}>
                 <label htmlFor="sort">Sort by:</label>
                 <select id="sort" value={sortOption} onChange={handleSortChange}>
@@ -91,7 +136,10 @@ const Search = () => {
                 </select>
               </div>
             </div>
-            {postResults.map((post) => <Post key={post._id} post={post} />)}
+            <h3>posts</h3>
+            {postResults.map((post) => (
+              <Post key={post._id} post={post} />
+            ))}
           </div>
         )}
       </div>

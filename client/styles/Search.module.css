@@ -42,3 +42,22 @@
     box-shadow: 0 0 0 2px rgba(60, 76, 36, 0.4);
   }
   
+  .infoBox {
+    background-color: #1c1c1e;
+    color: #ccc;
+    padding: 0px;
+    border-radius: 8px;
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    max-width: 400px;
+    margin-inline: auto;
+    border: 1px solid #333;
+    text-align: center;
+  }
+  
+  .infoHeader {
+    font-weight: 600;
+    color: #f0f0f0;
+    margin-bottom: 0.75rem;
+  }
+  

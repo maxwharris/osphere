@@ -75,7 +75,7 @@ const Register = () => {
             className={styles.input}
           />
           <button type="submit" className={styles.button}>register</button>
-          
+
         </form>
         {error && <p className={styles.error}>{error}</p>}
         <p className={styles.altLink}>
