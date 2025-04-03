@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
+import styles from "../styles/Register.module.css";
 import api from "../utils/api"; // ✅ Use centralized API instance
 import Navbar from "../components/Navbar";
 
@@ -12,12 +13,27 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    const trimmedUsername = username.trim();
+
+    if (!/^[a-zA-Z0-9_]+$/.test(trimmedUsername)) {
+      setError("Username can only include letters, numbers, and underscores.");
+      return;
+    }
+
+    const formattedUsername = `.${trimmedUsername}`;
+
     try {
-      await api.post("/api/auth/register", { username, email, password });
+      await api.post("/api/auth/register", {
+        username: formattedUsername,
+        email,
+        password,
+      });
+
       alert("Verification email sent. Please check your email to activate your account.");
 
-      // Auto-login after registration
-      await api.post("/api/auth/login", { email, password });
+      // Auto-login after registration (uncomment if needed)
+      // await api.post("/api/auth/login", { email, password });
 
       router.push("/");
     } catch (err) {
@@ -25,25 +41,30 @@ const Register = () => {
     }
   };
 
+
   return (
     <div>
       <Navbar />
-      <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <div className={styles.container}>
         <h2>register new account</h2>
-        <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", width: "300px", margin: "auto" }}>
-          <input
-            type="text"
-            placeholder="username (.username format)"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
+        <form onSubmit={handleRegister} className={styles.form}>
+          <div className={styles.inputGroup}>
+            <span>.</span>
+            <input
+              type="text"
+              placeholder="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
           <input
             type="email"
             placeholder="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className={styles.input}
           />
           <input
             type="password"
@@ -51,19 +72,18 @@ const Register = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className={styles.input}
           />
-          <button type="submit">Register</button>
-          <button
-            onClick={() => window.location.href = "https://api.osphere.io/api/auth/google"}
-            style={{ marginTop: "20px" }}
-          >
-            Continue with Google
-          </button>
+          <button type="submit" className={styles.button}>register</button>
+          
         </form>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <p>already have an account? <a href="/login">login here</a></p>
+        {error && <p className={styles.error}>{error}</p>}
+        <p className={styles.altLink}>
+          already have an account? <a href="/login">login here</a>
+        </p>
       </div>
     </div>
+
   );
 };
 

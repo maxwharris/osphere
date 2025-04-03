@@ -18,8 +18,8 @@ const transporter = nodemailer.createTransport({
   port: 587,  // Use 465 for SSL, 587 for TLS
   secure: false,
   auth: {
-    user: "fuzegamingtv@gmail.com",  // Replace with your email
-    pass: "krlwdvpltrszbncx",   // Replace with your email password or app password
+    user: "max@osphere.io",  // Replace with your email
+    pass: "vyrwzszxkmmgsgyc",   // Replace with your email password or app password
   },
 });
 
@@ -55,8 +55,8 @@ router.post("/register", async (req, res) => {
 
     const mailOptions = {
       to: email,
-      subject: "verify your Email",
-      html: `<p>click <a href="${verificationUrl}">here</a> to verify your email.</p>`,
+      subject: "verify your email",
+      html: `<p>click <a href="${verificationUrl}">here</a> to verify</p>`,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {

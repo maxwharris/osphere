@@ -13,6 +13,11 @@ const CreateGroup = () => {
   const handleCreateGroup = async (e) => {
     e.preventDefault();
 
+    if (/\s/.test(groupName)) {
+      setError("Group name cannot contain spaces.");
+      return;
+    }
+
     const user = JSON.parse(localStorage.getItem("user")); // Get user info
 
     console.log(user.id);
